@@ -1,7 +1,7 @@
 extends Button
 
-export (String) var price = "$0.0"
-export (String) var weaponName = "weapon"
+@export (String) var price = "$0.0"
+@export (String) var weaponName = "weapon"
 
 #click type
 enum {
@@ -21,16 +21,16 @@ var prev_cost: float = 0.0
 
 func _input(event):
 	if event is InputEventMouseButton:
-		if event.button_index == BUTTON_LEFT:
+		if event.button_index == MOUSE_BUTTON_LEFT:
 			click = LEFT
-		elif event.button_index == BUTTON_RIGHT:
+		elif event.button_index == MOUSE_BUTTON_RIGHT:
 			click = RIGHT
-		elif event.button_index == BUTTON_MIDDLE:
+		elif event.button_index == MOUSE_BUTTON_MIDDLE:
 			click = MIDDLE
 func _ready():
 	get_weapon()
 	update_status()
-	find_node("WeaponName").set_text(weaponName)
+	find_child("WeaponName").set_text(weaponName)
 
 func _on_Button_pressed():
 	update_status()
@@ -56,15 +56,15 @@ func update_status():
 	if !has_me:
 		modulate = Color(0.5, 0.5, 0.5)
 		p = Weapons.buycost[w]
-		find_node("Price").set_text("$" + str(p))
+		find_child("Price").set_text("$" + str(p))
 	elif n <= Weapons.MAX_UPGRADES:
 		modulate = Color(1, 1, 1)
 		p = Weapons.upcost[w]
-		find_node("Price").set_text("$" + str(p))
+		find_child("Price").set_text("$" + str(p))
 	else:
 		print("n more than" + str(Weapons.MAX_UPGRADES))
 
-	find_node("Upgrades").text = "upgrades " + str(n) + "/" + str(Weapons.MAX_UPGRADES)
+	find_child("Upgrades").text = "upgrades " + str(n) + "/" + str(Weapons.MAX_UPGRADES)
 
 func sell_weapon():
 	has_me = false

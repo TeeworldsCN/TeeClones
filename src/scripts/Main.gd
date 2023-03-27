@@ -1,4 +1,4 @@
-extends Spatial
+extends Node3D
 
 var tee_scene = preload("res://src/scenes/Tee.tscn")
 var teeIn
@@ -6,7 +6,7 @@ var base_pos: Vector3
 var id: int = 0
 
 func _ready():
-	base_pos = $Position3D.global_transform.origin
+	base_pos = $Marker3D.global_transform.origin
 	
 func _on_Play_pressed():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -27,7 +27,7 @@ func round_start():
 	init_tee()
 
 func init_tee():
-	teeIn = tee_scene.instance()
+	teeIn = tee_scene.instantiate()
 	teeIn.id = id
 	teeIn.transform.origin = \
 		(base_pos - 5 * Vector3(teeIn.id % 3, 0, teeIn.id / 3))

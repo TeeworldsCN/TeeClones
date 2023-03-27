@@ -1,10 +1,10 @@
-extends KinematicBody
+extends CharacterBody3D
 
 var is_rtrving = false
 var vel = Vector3(0,0,0)
 var hookorigin = Vector3()
-onready var PLRORIGIN = $"../KinematicBody".global_transform.origin
-onready var hook_line = $"../KinematicBody/HookLine"
+@onready var PLRORIGIN = $"../CharacterBody3D".global_transform.origin
+@onready var hook_line = $"../CharacterBody3D/HookLine"
 var plrorigin = Vector3()
 var collided = false
 var colshp = 0
@@ -13,7 +13,7 @@ var dbgi = 0
 
 func _physics_process(dt):
 	hookorigin = self.global_transform.origin
-	plrorigin = $"../KinematicBody".global_transform.origin
+	plrorigin = $"../CharacterBody3D".global_transform.origin
 	draw_hook_line()
 	if (PLRORIGIN - hookorigin).length_squared() >= \
 		WorldParams.MAX_HLEN * WorldParams.MAX_HLEN:

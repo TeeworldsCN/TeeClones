@@ -1,4 +1,4 @@
-extends Spatial
+extends Node3D
 
 var mouse_sens = 0.005
 
@@ -10,10 +10,10 @@ var is_clone = false
 var current_camera = false
 var id: int
 
-onready var head: Spatial = $KinematicBody/Head
-onready var kinb: KinematicBody = $KinematicBody
-onready var ray: RayCast = $KinematicBody/Head/Camera/Cursor/RayCast
-onready var lab = $CenterContainer/VBoxContainer/DistanceLabel
+@onready var head: Node3D = $CharacterBody3D/Head
+@onready var kinb: CharacterBody3D = $CharacterBody3D
+@onready var ray: RayCast3D = $CharacterBody3D/Head/Camera3D/Cursor/RayCast3D
+@onready var lab = $CenterContainer/VBoxContainer/DistanceLabel
 var hook = preload("res://src/scenes/Hook.tscn")
 
 enum {
@@ -31,12 +31,12 @@ class teeinput:
 
 func _ready():
 	if current_camera:
-		$KinematicBody/Head/Camera.make_current()
+		$CharacterBody3D/Head/Camera3D.make_current()
 
 	if is_clone:
 		$CenterContainer/VBoxContainer/DistanceLabel.visible = false
 		$CenterContainer/VBoxContainer/Label.visible = true
-		$KinematicBody/MeshInstance.visible = true
+		$CharacterBody3D/MeshInstance3D.visible = true
 
 func _physics_process(dt):
 	var snap_vector = Vector3()
@@ -81,7 +81,7 @@ func _physics_process(dt):
 #	if Input.is_action_just_pressed("hook"):
 	if inp.hookst == JUST_PRESSED:
 		rel_h()
-		var hi = hook.instance()
+		var hi = hook.instantiate()
 		add_child(hi)
 #		var rx = head.rotation.x
 		var rx = inp.camrot.x
@@ -98,14 +98,18 @@ func _physics_process(dt):
 	elif inp.hookst == PRESSED:
 		snap_vector = Vector3.ZERO
 
-	nvel = kinb.move_and_slide_with_snap((vel + nvel) / 2, snap_vector, Vector3.UP)
+	kinb.set_velocity((vel + nvel) / 2)
+	# TODOConverter40 looks that snap in Godot 4.0 is float, not vector like in Godot 3 - previous value `snap_vector`
+	kinb.set_up_direction(Vector3.UP)
+	kinb.move_and_slide()
+	nvel = kinb.velocity
 #	nvel = kinb.move_and_slide((vel + nvel) / 2, Vector3.UP)
 
 	vel = nvel
 	displaydistance()
 
 func rel_h():
-	$KinematicBody/HookLine.visible = false
+	$CharacterBody3D/HookLine.visible = false
 	if has_node("Hook"):
 		$Hook.free()
 
@@ -124,7 +128,7 @@ func get_input_direction() -> Vector3:
 		Input.get_action_strength("bwd")
 	var x: float = Input.get_action_strength("left") - \
 		Input.get_action_strength("right")
-	return kinb.transform.basis.xform(Vector3(x, 0, z).normalized())
+	return kinb.transform.basis * (Vector3(x, 0, z).normalized())
 
 func apply_friction(v: Vector3, dv: float) -> Vector3:
 	return v.normalized() * max(v.length() - dv, 0) - v
@@ -158,9 +162,9 @@ func spawn(pos: Vector3):
 func displaydistance():
 	var dis = (ray.get_collision_point() - kinb.global_transform.origin).length()
 	if dis < WorldParams.MAX_HLEN:
-		lab.modulate = Color.green
+		lab.modulate = Color.GREEN
 	else:
-		lab.modulate = Color.red
+		lab.modulate = Color.RED
 	lab.text = str(dis).pad_decimals(0)
 
 func get_input():
@@ -202,6 +206,6 @@ func save_input(inp):
 func tee_visible(on: bool):
 	$CenterContainer/VBoxContainer/DistanceLabel.visible = false
 	$CenterContainer/VBoxContainer/Label.visible = false
-	$KinematicBody/MeshInstance.visible = on
-	$KinematicBody/Head/EyeL.visible = on
-	$KinematicBody/Head/EyeR.visible = on
+	$CharacterBody3D/MeshInstance3D.visible = on
+	$CharacterBody3D/Head/EyeL.visible = on
+	$CharacterBody3D/Head/EyeR.visible = on
